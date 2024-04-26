@@ -8,21 +8,20 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { CldImage } from 'next-cloudinary';
+import { Photos } from '@/types/cloudinary';
+import { useResources } from '@/hooks/useResources';
 
-interface Photos {
-  height: number,
-  width: number,
-  secure_url: string,
-  public_id: string
-}
+
+
 interface MediaGalleryProps {
   resources: Array<Photos>
 }
 
-const MediaGallery = ({ resources }: MediaGalleryProps) => {
+const MediaGallery = ({ resources: initialResources }: MediaGalleryProps) => {
   const [selected, setSelected] = useState<Array<string>>([]);
   const [creation, setCreation] = useState();
 
+ const {resources} = useResources({initialResources});
   /**
    * handleOnClearSelection
    */
@@ -34,9 +33,8 @@ const MediaGallery = ({ resources }: MediaGalleryProps) => {
   /**
    * handleOnCreationOpenChange
    */
-
   function handleOnCreationOpenChange(isOpen: boolean) {
-    if ( !isOpen ) {
+    if (!isOpen) {
       setCreation(undefined);
     }
   }
@@ -73,7 +71,7 @@ const MediaGallery = ({ resources }: MediaGalleryProps) => {
               </li>
             </ul>
             <p>
-              <span>{ selected?.length } Selected</span>
+              <span>{selected?.length} Selected</span>
             </p>
           </div>
           <ul className="flex items-center gap-4">
@@ -109,7 +107,7 @@ const MediaGallery = ({ resources }: MediaGalleryProps) => {
 
                 function handleOnSelectResource(checked: boolean) {
                   setSelected((prev) => {
-                    if ( checked ) {
+                    if (checked) {
                       return Array.from(new Set([...(prev || []), resource.public_id]));
                     } else {
                       return prev.filter((id) => id !== resource.public_id);
@@ -122,7 +120,7 @@ const MediaGallery = ({ resources }: MediaGalleryProps) => {
                     <div className="relative group">
                       <label className={`absolute ${isChecked ? 'opacity-100' : 'opacity-0'} group-hover:opacity-100 transition-opacity top-3 left-3 p-1`} htmlFor={resource.public_id}>
                         <span className="sr-only">
-                          Select Image &quot;{ resource.public_id }&quot;
+                          Select Image &quot;{resource.public_id}&quot;
                         </span>
                         <Checkbox
                           className={`w-6 h-6 rounded-full bg-white shadow ${isChecked ? 'border-blue-500' : 'border-zinc-200'}`}

@@ -1,9 +1,18 @@
 "use-client";
 
-import { CldUploadButton } from 'next-cloudinary';
+import { CldUploadButton, CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { Upload } from 'lucide-react';
+import { useResources } from '@/hooks/useResources';
+import { Photos } from '@/types/cloudinary';
 
 const UploadButton = () => {
+
+  const {addResources} = useResources();
+
+  const handleSuccess = (results: CloudinaryUploadWidgetResults) => {
+    debugger;
+    addResources([ results.info as Photos])
+  }
   return (
 
     <CldUploadButton
@@ -11,6 +20,7 @@ const UploadButton = () => {
       options={{
         autoMinimize: true
       }}
+      onSuccess={handleSuccess}
     >
       <span className="flex gap-2 items-center">
         <Upload className="w-4 h-4 " /> Upload
