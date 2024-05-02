@@ -7,7 +7,10 @@ import { Photos } from '@/types/cloudinary';
 
 const UploadButton = () => {
 
-  const {addResources} = useResources();
+  const {addResources} = useResources({
+    disableFetch: true,
+    tag: 'media'
+  });
 
   const handleSuccess = (results: CloudinaryUploadWidgetResults) => {
     debugger;
@@ -18,7 +21,8 @@ const UploadButton = () => {
     <CldUploadButton
       signatureEndpoint={'/api/sign-cloudinary-params'}
       options={{
-        autoMinimize: true
+        autoMinimize: true,
+        tags: ['media']
       }}
       onSuccess={handleSuccess}
     >
