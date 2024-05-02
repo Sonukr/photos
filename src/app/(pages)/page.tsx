@@ -17,7 +17,7 @@ cloudinary.config({
 
 export default async function Home() {
 
-  const {resources: photos} = await cloudinary.api.resources();
+  const {resources: photos} = await cloudinary.api.resources_by_tag('media');
   console.log(photos)
   return (
     <div className="h-full mt-6">
