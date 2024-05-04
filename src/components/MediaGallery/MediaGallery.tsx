@@ -11,17 +11,19 @@ import { CldImage } from 'next-cloudinary';
 import { Photos } from '@/types/cloudinary';
 import { useResources } from '@/hooks/useResources';
 
-
-
 interface MediaGalleryProps {
-  resources: Array<Photos>
+  resources: Array<Photos>,
+  tag?: string
 }
 
-const MediaGallery = ({ resources: initialResources }: MediaGalleryProps) => {
+const MediaGallery = ({ resources: initialResources, tag }: MediaGalleryProps) => {
   const [selected, setSelected] = useState<Array<string>>([]);
   const [creation, setCreation] = useState();
 
- const {resources} = useResources({initialResources});
+ const {resources} = useResources({
+  initialResources,
+  tag: 'media'
+});
   /**
    * handleOnClearSelection
    */
@@ -131,7 +133,7 @@ const MediaGallery = ({ resources: initialResources }: MediaGalleryProps) => {
                       </label>
                       <Link
                         className={`block cursor-pointer border-8 transition-[border] ${isChecked ? 'border-blue-500' : 'border-white'}`}
-                        href="#"
+                        href={`/resources/${resource.asset_id}`}
                       >
                         <CldImage
                           width={resource.width}

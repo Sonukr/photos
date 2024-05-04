@@ -23,6 +23,7 @@ export default async function Home() {
     <div className="h-full mt-6">
       <MediaGallery
         resources={photos}
+        tag="media"
       />
     </div>
   )
