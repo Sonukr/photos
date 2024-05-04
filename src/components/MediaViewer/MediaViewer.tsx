@@ -1,8 +1,8 @@
 'use client';
 
-import {  useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Blend, ChevronLeft, ChevronDown, Crop, Info, Pencil, Trash2, Wand2, Image, Ban } from 'lucide-react';
+import { Blend, ChevronLeft, ChevronDown, Crop, Info, Pencil, Trash2, Wand2, Image, Ban, PencilRuler, ScissorsSquare, Wand } from 'lucide-react';
 
 import Container from '@/components/Container';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Photos } from '@/types/cloudinary';
-import { CldImage } from 'next-cloudinary';
+import { CldImage, CldImageProps } from 'next-cloudinary';
 
 interface Deletion {
   state: string;
@@ -26,6 +26,17 @@ const MediaViewer = ({ resource }: { resource: Photos }) => {
   const [filterSheetIsOpen, setFilterSheetIsOpen] = useState(false);
   const [infoSheetIsOpen, setInfoSheetIsOpen] = useState(false);
   const [deletion, setDeletion] = useState<Deletion>();
+  const [enhancement, setEnhancement] = useState<string>();
+
+  type Transformation = Omit<CldImageProps, "src" | "alt">;
+  const transformation: Transformation = {}
+  if (enhancement === 'restore') {
+    transformation.restore = true;
+  } else if (enhancement === 'improve') {
+    transformation.improve = true;
+  } else if (enhancement === 'remove-background') {
+    transformation.removeBackground = true;
+  }
 
   // Canvas sizing based on the image dimensions. The tricky thing about
   // showing a single image in a space like this in a responsive way is trying
@@ -43,11 +54,11 @@ const MediaViewer = ({ resource }: { resource: Photos }) => {
 
   const imgStyles: Record<string, string | number> = {};
 
-  if ( isLandscape ) {
+  if (isLandscape) {
     imgStyles.maxWidth = resource.width;
     imgStyles.width = '100%';
     imgStyles.height = 'auto';
-  } else if ( isPortrait || isSquare ) {
+  } else if (isPortrait || isSquare) {
     imgStyles.maxHeight = resource.height;
     imgStyles.height = '100vh';
     imgStyles.width = 'auto'
@@ -70,7 +81,7 @@ const MediaViewer = ({ resource }: { resource: Photos }) => {
 
   function handleOnDeletionOpenChange(isOpen: boolean) {
     // Reset deletion dialog if the user is closing it
-    if ( !isOpen ) {
+    if (!isOpen) {
       setDeletion(undefined);
     }
   }
@@ -91,7 +102,7 @@ const MediaViewer = ({ resource }: { resource: Photos }) => {
     const excludedElements = Array.from(document.querySelectorAll('[data-exclude-close-on-click="true"]'));
     const clickedExcludedElement = excludedElements.filter(element => event.composedPath().includes(element)).length > 0;
 
-    if ( !clickedExcludedElement ) {
+    if (!clickedExcludedElement) {
       closeMenus();
     }
   }
@@ -143,9 +154,43 @@ const MediaViewer = ({ resource }: { resource: Photos }) => {
               </SheetHeader>
               <ul className="grid gap-2">
                 <li>
-                  <Button variant="ghost" className={`text-left justify-start w-full h-14 border-4 bg-zinc-700 border-white`}>
+                  <Button
+                    variant="ghost"
+                    className={`text-left justify-start w-full h-14 border-4 bg-zinc-700 ${!enhancement ? 'border-white' : 'border-transparent'}`}
+                    onClick={() => setEnhancement(undefined)}
+                  >
                     <Ban className="w-5 h-5 mr-3" />
                     <span className="text-[1.01rem]">None</span>
+                  </Button>
+                </li>
+                <li>
+                  <Button
+                    variant="ghost"
+                    className={`text-left justify-start w-full h-14 border-4 bg-zinc-700 ${enhancement === 'improve' ? 'border-white' : 'border-transparent'}`}
+                    onClick={() => setEnhancement('improve')}
+                  >
+                    <Wand className="w-5 h-5 mr-3" />
+                    <span className="text-[1.01rem]">Improve</span>
+                  </Button>
+                </li>
+                <li>
+                  <Button
+                    variant="ghost"
+                    className={`text-left justify-start w-full h-14 border-4 bg-zinc-700 ${enhancement === 'remove-background' ? 'border-white' : 'border-transparent'}`}
+                    onClick={() => setEnhancement('remove-background')}
+                  >
+                    <ScissorsSquare className="w-5 h-5 mr-3" />
+                    <span className="text-[1.01rem]">Remove Background</span>
+                  </Button>
+                </li>
+                <li>
+                  <Button
+                    variant="ghost"
+                    className={`text-left justify-start w-full h-14 border-4 bg-zinc-700 ${enhancement === 'restore' ? 'border-white' : 'border-transparent'}`}
+                    onClick={() => setEnhancement('restore')}
+                  >
+                    <PencilRuler className="w-5 h-5 mr-3" />
+                    <span className="text-[1.01rem]">Restore</span>
                   </Button>
                 </li>
               </ul>
@@ -239,7 +284,7 @@ const MediaViewer = ({ resource }: { resource: Photos }) => {
               <li className="mb-3">
                 <strong className="block text-xs font-normal text-zinc-400 mb-1">ID</strong>
                 <span className="flex gap-4 items-center text-zinc-100">
-                  { resource.public_id }
+                  {resource.public_id}
                 </span>
               </li>
             </ul>
@@ -294,13 +339,15 @@ const MediaViewer = ({ resource }: { resource: Photos }) => {
       {/** Asset viewer */}
 
       <div className="relative flex justify-center items-center align-center w-full h-full">
-        <CldImage 
+        <CldImage
+          key={JSON.stringify(transformation)}
           className="object-contain"
           width={resource.width}
           height={resource.height}
           src={resource.secure_url}
           alt={resource.public_id}
           style={imgStyles}
+          {...transformation}
         />
       </div>
     </div>
