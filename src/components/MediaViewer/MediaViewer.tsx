@@ -10,12 +10,14 @@ import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Photos } from '@/types/cloudinary';
+import { CldImage } from 'next-cloudinary';
 
 interface Deletion {
   state: string;
 }
 
-const MediaViewer = ({ resource }: { resource: { id: string; width: number; height: number; } }) => {
+const MediaViewer = ({ resource }: { resource: Photos }) => {
   const sheetFiltersRef = useRef<HTMLDivElement | null>(null);
   const sheetInfoRef = useRef<HTMLDivElement | null>(null);
 
@@ -237,7 +239,7 @@ const MediaViewer = ({ resource }: { resource: { id: string; width: number; heig
               <li className="mb-3">
                 <strong className="block text-xs font-normal text-zinc-400 mb-1">ID</strong>
                 <span className="flex gap-4 items-center text-zinc-100">
-                  { resource.id }
+                  { resource.public_id }
                 </span>
               </li>
             </ul>
@@ -292,12 +294,12 @@ const MediaViewer = ({ resource }: { resource: { id: string; width: number; heig
       {/** Asset viewer */}
 
       <div className="relative flex justify-center items-center align-center w-full h-full">
-        <img
+        <CldImage 
           className="object-contain"
           width={resource.width}
           height={resource.height}
-          src="/icon-1024x1024.png"
-          alt="Cloudinary Logo"
+          src={resource.secure_url}
+          alt={resource.public_id}
           style={imgStyles}
         />
       </div>
